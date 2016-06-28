@@ -29,5 +29,5 @@
 
 - name: Trigger handler to set firewall state
   command: "/bin/true"
-  notify: set firewall state
+  notify: set ufw state
   tags: ['ufw', 'ufw:configuration']
