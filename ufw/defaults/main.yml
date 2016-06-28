@@ -1,0 +1,8 @@
+---
+
+ufw_open_ports: []
+ufw_limited_ports: [22]
+ufw_closed_ports: []
+ufw_rejected_ports: []
+ufw_default_policy: "deny"
+ufw_firewall_state: "enabled"

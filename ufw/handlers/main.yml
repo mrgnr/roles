@@ -1,0 +1,4 @@
+---
+
+- name: set ufw state
+  ufw: state={{ ufw_firewall_state }} logging=on

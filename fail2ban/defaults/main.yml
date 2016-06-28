@@ -1,0 +1,17 @@
+---
+
+# Path to a template defined by the user. If not set, the template used in
+# this role's templates/ directory is used.
+fail2ban_jail_local: ""
+
+fail2ban_default_ignoreip: "127.0.0.1/8"
+fail2ban_default_bantime: 600
+fail2ban_default_findtime: 600
+fail2ban_default_maxretry: 3
+
+fail2ban_ssh_enabled: true
+fail2ban_ssh_port: 22
+fail2ban_ssh_ignoreip: "{{ fail2ban_default_ignoreip }}"
+fail2ban_ssh_bantime: "{{ fail2ban_default_bantime }}"
+fail2ban_ssh_findtime: "{{ fail2ban_default_findtime }}"
+fail2ban_ssh_maxretry: "{{ fail2ban_default_maxretry }}"

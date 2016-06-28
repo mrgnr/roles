@@ -1,0 +1,16 @@
+---
+
+packages_keys: []
+packages_repositories: []
+
+# Packages to be removed
+packages_remove: []
+packages_purge: no
+
+packages_install: []
+
+# Packages to be upgraded to the latest version
+packages_upgrade: []
+
+# Set to yes to remove unused dependencies
+packages_autoremove: no

@@ -1,0 +1,40 @@
+---
+
+- name: Remove groups
+  group: name={{ item }} state=absent
+  with_items: users_groups_remove
+  tags: ['users']
+
+- name: Create groups
+  group: name={{ item }} state=present
+  with_items: users_groups_create
+  tags: ['users']
+
+- name: Remove users
+  user: >
+    name={{ item }}
+    state=absent
+    remove=yes
+  with_items: users_remove
+  tags: ['users']
+
+- name: Create users
+  user: >
+    name={{ item.name }}
+    group={{ item.group | default(omit) }}
+    groups={{ item.groups | default(omit) }}
+    shell={{ item.shell | default(omit) }}
+    password={{ item.password | default(omit) }}
+    update_password=always
+  with_items: users_create
+  tags: ['users']
+
+# TODO: Is this necessary?
+#- name: Allow users to sudo without a password
+#  lineinfile: >
+#    dest=/etc/sudoers
+#    line="{{ item.name }} ALL=(ALL) NOPASSWD: ALL"
+#    state=present
+#    validate='visudo -cf %s'
+#  when: ('sudo' == item.group or 'sudo' in item.groups) and not defined item.password
+#  tags: ['users']

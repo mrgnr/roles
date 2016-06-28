@@ -1,0 +1,7 @@
+---
+
+unattended_upgrades: yes
+unattended_upgrades_allowed_origins:
+  - "${distro_id}:${distro_codename}-security"
+unattended_upgrades_package_blacklist: []
+unattended_upgrades_mail: "root"

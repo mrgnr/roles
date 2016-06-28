@@ -1,0 +1,13 @@
+[DEFAULT]
+ignoreip = {{ fail2ban_default_ignoreip }}
+bantime = {{ fail2ban_default_bantime }}
+findtime = {{ fail2ban_default_findtime }}
+maxretry = {{ fail2ban_default_maxretry }}
+
+[sshd]
+enabled = {{ fail2ban_ssh_enabled }}
+port = {{ fail2ban_ssh_port }}
+ignoreip = {{ fail2ban_ssh_ignoreip }}
+bantime = {{ fail2ban_ssh_bantime }}
+findtime = {{ fail2ban_ssh_findtime }}
+maxretry = {{ fail2ban_ssh_maxretry }}

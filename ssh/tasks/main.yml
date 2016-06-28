@@ -1,0 +1,41 @@
+---
+
+- name: Add SSH authorized keys
+  authorized_key: >
+    user={{ item.user }}
+    key={{ item.pubkey }}
+  with_items: ssh_pubkeys
+  tags: ['ssh', 'ssh:configuration']
+
+- name: Set SSH port
+  lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp="^Port"
+    line="Port {{ ssh_port }}"
+    state=present
+  notify: reload ssh
+  tags: ['ssh', 'ssh:configuration']
+
+- name: Enable/Disable SSH password authentication
+  lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp="^PasswordAuthentication"
+    line="PasswordAuthentication {{ ssh_password_auth }}"
+    state=present
+  notify: reload ssh
+  tags: ['ssh', 'ssh:configuration']
+
+- name: Enable/Disable SSH root login
+  lineinfile: >
+    dest=/etc/ssh/sshd_config
+    regexp="^PermitRootLogin"
+    line="PermitRootLogin {{ ssh_permit_root_login }}"
+    state=present
+  notify: reload ssh
+  tags: ['ssh', 'ssh:configuration']
+
+- name: Trigger handler to restart SSH
+  command: "/bin/true"
+  notify: restart ssh
+  when: ssh_restart
+  tags: ['ssh', 'ssh:configuration']

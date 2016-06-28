@@ -1,0 +1,40 @@
+---
+
+- name: Add repository keys
+  apt_key: >
+    data={{ item.data | default(omit) }}
+    url={{ item.url | default(omit) }}
+    file={{ item.file | default(omit) }}
+    keyserver={{ item.keyserver | default(omit) }}
+    id={{ item.id | default(omit) }}
+  with_items: packages_keys
+  tags: ['packages']
+
+- name: Add package repositories
+  apt_repository: repo={{ item }}
+  with_items: packages_repositories
+  tags: ['packages']
+
+- name: Update apt cache
+  apt: update_cache=yes
+  tags: ['packages']
+
+- name: Remove packages
+  apt: name={{ item }} state=absent purge={{ packages_purge }}
+  with_items: packages_remove
+  tags: ['packages']
+
+- name: Install packages
+  apt: name={{ item }} state=present
+  with_items: packages_install
+  tags: ['packages']
+
+- name: Upgrade packages to latest version
+  apt: name={{ item }} state=latest
+  with_items: packages_upgrade
+  tags: ['packages']
+
+#- name: Remove unused dependencies
+#  apt: autoremove=yes
+#  when: packages_autoremove
+#  tags: ['packages']
