@@ -1,0 +1,12 @@
+ORPort {{ tor_port }}
+{% if tor_dir_enable %}
+DirPort {{ tor_dir_port }}
+{% endif %}
+Nickname {{ tor_nickname }}
+RelayBandwidthRate {{ tor_bandwidth_rate }}
+RelayBandwidthBurst {{ tor_bandwidth_burst }}
+AccountingMax {{ tor_accounting_max }}
+AccountingStart {{ tor_accounting_start }}
+ContactInfo {{ tor_contact_info }}
+MyFamily {{ tor_my_family }}
+ExitPolicy {{ tor_exit_policy }}

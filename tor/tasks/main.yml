@@ -1,0 +1,36 @@
+---
+
+- name: Add Tor repositories
+  apt_repository: repo="{{ item }}" state=present
+  with_items: tor_repositories
+  tags: ['tor', 'tor:install']
+
+- name: Add Tor repository key
+  apt_key: keyserver=keys.gnupg.net id={{ tor_apt_key_id }}
+  tags: ['tor', 'tor:install']
+
+- name: Update apt cache
+  apt: update_cache=yes
+  tags: ['tor', 'tor:install']
+
+- name: Install Tor
+  apt: name={{ item }} state=latest
+  with_items:
+    - tor
+    - deb.torproject.org-keyring
+  tags: ['tor', 'tor:install']
+
+- name: Enable Tor
+  service: name=tor enabled=yes
+  tags: ['tor', 'tor:configuration']
+
+- name: Copy Tor configuration file
+  template: src={{ tor_torrc }} dest=/etc/tor/torrc
+  notify: reload tor
+  tags: ['tor', 'tor:configuration']
+
+- name: Trigger handler to restart Tor
+  command: "/bin/true"
+  notify: restart tor
+  when: tor_restart
+  tags: ['tor', 'tor:configuration']
