@@ -5,13 +5,6 @@
   tags: ['fail2ban', 'fail2ban:install']
 
 - name: Copy fail2ban configuration
-  template: src=jail.local.j2 dest=/etc/fail2ban/jail.local
-  notify: restart fail2ban
-  when: "not {{ fail2ban_jail_local | length }}"
-  tags: ['fail2ban', 'fail2ban:configuration']
-
-- name: Copy fail2ban configuration
   template: src={{ fail2ban_jail_local }} dest=/etc/fail2ban/jail.local
   notify: restart fail2ban
-  when: "{{ fail2ban_jail_local | length }}"
   tags: ['fail2ban', 'fail2ban:configuration']

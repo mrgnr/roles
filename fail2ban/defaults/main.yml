@@ -1,8 +1,6 @@
 ---
 
-# Path to a template defined by the user. If not set, the template used in
-# this role's templates/ directory is used.
-fail2ban_jail_local: ""
+fail2ban_jail_local: "jail.local.j2"
 
 fail2ban_default_ignoreip: "127.0.0.1/8"
 fail2ban_default_bantime: 600
