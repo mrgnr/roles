@@ -14,7 +14,7 @@
   tags: ['tor', 'tor:install']
 
 - name: Install Tor
-  apt: name={{ item }} state=latest
+  apt: name={{ item }} state=present
   with_items:
     - tor
     - deb.torproject.org-keyring

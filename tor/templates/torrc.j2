@@ -1,12 +1,22 @@
-ORPort {{ tor_port }}
-{% if tor_dir_enable %}
-DirPort {{ tor_dir_port }}
-{% endif %}
+# Client configuration
+SOCKSPort {{ tor_socks_port }}
+DNSPort {{ tor_dns_port }}
+
+# Relay configuration
+ORPort {{ tor_or_port }}
+Address {{ tor_address }}
 Nickname {{ tor_nickname }}
 RelayBandwidthRate {{ tor_bandwidth_rate }}
 RelayBandwidthBurst {{ tor_bandwidth_burst }}
 AccountingMax {{ tor_accounting_max }}
 AccountingStart {{ tor_accounting_start }}
 ContactInfo {{ tor_contact_info }}
+DirPort {{ tor_dir_port }}
 MyFamily {{ tor_my_family }}
 ExitPolicy {{ tor_exit_policy }}
+
+{% if tor_bridge %}
+# Bridge configuration
+BridgeRelay 1
+PublishServerDescriptor bridge
+{% endif %}
