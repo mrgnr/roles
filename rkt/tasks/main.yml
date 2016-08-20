@@ -1,5 +1,9 @@
 ---
 
+- name: Install systemd-container package (required for acbuild)
+  apt: name=systemd-container state=present update_cache=yes
+  tags: ['rkt', 'rkt:install']
+
 - name: Create download directory
   file: path="{{ rkt_download_dir }}" state=directory mode=0755
   tags: ['rkt', 'rkt:install']
