@@ -1,32 +1,26 @@
 ---
 
-- name: Add Tor repositories
-  apt_repository: repo="{{ item }}" state=present
-  with_items: tor_repositories
-  tags: ['tor', 'tor:install']
+- include: host.yml
+  when: tor_daemon_type == "host"
 
-- name: Add Tor repository key
-  apt_key: keyserver=keys.gnupg.net id={{ tor_apt_key_id }}
-  tags: ['tor', 'tor:install']
+- include: rkt.yml
+  when: tor_daemon_type == "rkt"
 
-- name: Update apt cache
-  apt: update_cache=yes
-  tags: ['tor', 'tor:install']
-
-- name: Install Tor
-  apt: name={{ item }} state=present
-  with_items:
-    - tor
-    - deb.torproject.org-keyring
-  tags: ['tor', 'tor:install']
-
-- name: Enable Tor
-  service: name=tor enabled=yes
+- name: Create Tor configuration directory
+  file: path=/etc/tor state=directory owner=root group=root mode=0755
   tags: ['tor', 'tor:configuration']
 
 - name: Copy Tor configuration file
   template: src={{ tor_torrc }} dest=/etc/tor/torrc
   notify: reload tor
+  tags: ['tor', 'tor:configuration']
+
+- name: Enable Tor
+  service: name=tor enabled=yes
+  tags: ['tor', 'tor:configuration']
+
+- name: Start Tor
+  service: name=tor state=started
   tags: ['tor', 'tor:configuration']
 
 - name: Trigger handler to restart Tor

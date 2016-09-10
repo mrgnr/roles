@@ -1,0 +1,19 @@
+---
+
+- name: Trust signing key for alpine image
+  command: rkt --trust-keys-from-https trust --prefix quay.io/coreos/alpine-sh
+  tags: ['tor', 'tor:install']
+
+- name: Trust signing key for Tor image
+  command: rkt --trust-keys-from-https trust --prefix={{ tor_rkt_image_domain }} {{ tor_rkt_signing_key_url }}
+  tags: ['tor', 'tor:install']
+
+- name: Fetch Tor image
+  command: rkt fetch {{ tor_rkt_image_domain }}/{{ tor_rkt_image }}:{{ tor_rkt_version }}
+  tags: ['tor', 'tor:install']
+
+- name: Copy systemd service file
+  template: >
+    src="{{ tor_rkt_service }}" dest="/etc/systemd/system/tor.service"
+    owner=root group=root
+  tags: ['tor', 'tor:configuration']

@@ -1,0 +1,21 @@
+---
+
+- name: Add Tor repositories
+  apt_repository: repo="{{ item }}" state=present
+  with_items: tor_repositories
+  tags: ['tor', 'tor:install']
+
+- name: Add Tor repository key
+  apt_key: keyserver=keys.gnupg.net id="{{ tor_apt_key_id }}"
+  tags: ['tor', 'tor:install']
+
+- name: Update apt cache
+  apt: update_cache=yes
+  tags: ['tor', 'tor:install']
+
+- name: Install Tor
+  apt: name="{{ item }}" state=present
+  with_items:
+    - tor
+    - deb.torproject.org-keyring
+  tags: ['tor', 'tor:install']

@@ -1,15 +1,25 @@
 ---
 
+tor_daemon_type: "host"
+
 tor_repositories:
     - "deb http://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main"
     - "deb-src http://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main"
 tor_apt_key_id: "A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89"
+
+tor_rkt_image: "tor"
+tor_rkt_image_domain: "rkt.mrgnr.io"
+tor_rkt_signing_key_url: "https://keybase.io/mrgnr/key.asc"
+tor_rkt_version: "0.2.8.6"
+tor_rkt_service: "systemd/rkt/tor.service"
 
 tor_torrc: "torrc.j2"
 
 # Client configuration
 tor_socks_port: 9050
 tor_dns_port: 0
+tor_log_severity: "notice"
+tor_log_location: "file /var/log/tor/log"
 
 # Relay configuration
 tor_or_port: 9001
