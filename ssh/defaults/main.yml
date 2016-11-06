@@ -4,4 +4,8 @@ ssh_port: 22
 ssh_permit_root_login: "no"
 ssh_password_auth: "no"
 ssh_pubkeys: []
+ssh_allow_groups: ""
+ssh_allow_users: ""
+ssh_deny_groups: ""
+ssh_deny_users: ""
 ssh_restart: no
