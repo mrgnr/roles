@@ -25,6 +25,7 @@
     backup=yes
     validate="/usr/sbin/sshd -T -f %s"
   notify: reload ssh
+  when: ssh_password_auth != ""
   tags: ['ssh', 'ssh:configuration']
 
 - name: Enable/Disable SSH root login
@@ -35,6 +36,18 @@
     backup=yes
     validate="/usr/sbin/sshd -T -f %s"
   notify: reload ssh
+  when: ssh_permit_root_login != ""
+  tags: ['ssh', 'ssh:configuration']
+
+- name: Set authentication methods
+  lineinfile: >
+    dest=/etc/ssh/sshd_config
+    regexp="^AuthenticationMethods"
+    line="AuthenticationMethods {{ ssh_authentication_methods }}"
+    backup=yes
+    validate="/usr/sbin/sshd -T -f %s"
+  notify: reload ssh
+  when: ssh_authentication_methods != ""
   tags: ['ssh', 'ssh:configuration']
 
 - name: Set allowed groups

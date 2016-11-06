@@ -1,8 +1,9 @@
 ---
 
 ssh_port: 22
-ssh_permit_root_login: "no"
-ssh_password_auth: "no"
+ssh_permit_root_login: ""
+ssh_password_auth: ""
+ssh_authentication_methods: ""
 ssh_pubkeys: []
 ssh_allow_groups: ""
 ssh_allow_users: ""
