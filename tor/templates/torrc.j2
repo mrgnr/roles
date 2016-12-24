@@ -21,3 +21,11 @@ Log {{ tor_log_severity }} {{ tor_log_location }}
 BridgeRelay 1
 PublishServerDescriptor bridge
 {% endif %}
+
+{% for hs in tor_hidden_services %}
+HiddenServiceDir /var/lib/tor/{{ hs.name }}
+HiddenServicePort {{ hs.port }} 127.0.0.1:{{ hs.port }}
+{% if hs.auth_type is defined and hs.auth_user is defined %}
+HiddenServiceAuthorizeClient {{ hs.auth_type }} {{ hs.auth_user }}
+{% endif %}
+{% endfor %}

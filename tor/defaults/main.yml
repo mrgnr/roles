@@ -37,4 +37,12 @@ tor_exit_policy: "reject *:*"
 # Bridge configuration
 tor_bridge: no
 
+# Hidden services
+#tor_hidden_services:
+#  - name: ssh
+#    port: 22
+#    auth_type: stealth
+#    auth_user: username
+tor_hidden_services: []
+
 tor_restart: no
