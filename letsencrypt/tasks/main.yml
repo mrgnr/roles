@@ -1,0 +1,49 @@
+---
+
+- name: Install Let's Encrypt
+  apt: name="letsencrypt"
+  tags: ['letsencrypt']
+
+- name: Create Let's Encrypt webroot directory
+  file: >
+    state=directory
+    path="{{ letsencrypt_webroot }}"
+    owner="{{ letsencrypt_webuser }}"
+    group="{{ letsencrypt_webuser }}"
+  tags: ['letsencrypt']
+
+- name: Copy nginx config
+  template: >
+    src="{{ letsencrypt_webserver_config }}"
+    dest="{{ letsencrypte_sites_available }}/{{ letsencrypt_webserver_config | basename }}"
+  when: letsencrypt_webserver == "nginx"
+  tags: ['letsencrypt']
+
+- name: Enable nginx config
+  file: >
+    state=link
+    path="{{ letsencrypte_sites_enabled }}/{{ letsencrypt_webserver_config | basename }}"
+    src="{{ letsencrypte_sites_available }}/{{ letsencrypt_webserver_config | basename }}"
+  when: letsencrypt_webserver == "nginx"
+  tags: ['letsencrypt']
+
+- name: Reload nginx
+  service: name=nginx state=reloaded
+  when: letsencrypt_webserver == "nginx"
+  tags: ['letsencrypt']
+
+- name: Generate certificates
+  command: >
+    letsencrypt certonly --agree-tos --webroot -w "{{ letsencrypt_webroot }}" -d "{{ item }}"
+    creates="/etc/letsencrypt/live/{{ item }}"
+  with_items: letsencrypt_domains
+  tags: ['letsencrypt']
+
+- name: Create cron to renew certificates
+  cron: >
+    name="Let's Encrypt certificate renewal"
+    cron_file="letsencrypt"
+    special_time="daily"
+    user="root"
+    job="letsencrypt renew --agree-tos"
+  tags: ['letsencrypt']

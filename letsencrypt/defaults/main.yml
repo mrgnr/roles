@@ -1,0 +1,9 @@
+---
+
+letsencrypt_domains: []
+letsencrypt_webroot: "/var/www/letsencrypt"
+letsencrypt_webuser: "www-data"
+letsencrypt_webserver: "nginx"
+letsencrypt_webserver_config: "nginx/letsencrypt"
+letsencrypte_sites_available: "/etc/nginx/sites-available"
+letsencrypte_sites_enabled: "/etc/nginx/sites-enabled"
