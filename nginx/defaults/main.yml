@@ -1,0 +1,18 @@
+---
+
+nginx_repositories: 
+  - "deb http://nginx.org/packages/ubuntu/ {{ ansible_distribution_release }} nginx"
+  - "deb-src http://nginx.org/packages/ubuntu/ {{ ansible_distribution_release }} nginx"
+nginx_apt_key_url: "https://nginx.org/keys/nginx_signing.key"
+
+nginx_dhparams_dir: "{{ nginx_config_dir }}"
+nginx_dhparams_filename: "dhparams.pem"
+
+nginx_config_dir: "/etc/nginx"
+nginx_configs: []
+nginx_sites_available_dir: "{{ nginx_config_dir }}/sites-available"
+nginx_sites_available: []
+nginx_sites_enabled_dir: "{{ nginx_config_dir }}/sites-enabled"
+nginx_sites_enabled: []
+
+nginx_force_restart: no

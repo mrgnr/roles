@@ -1,0 +1,70 @@
+---
+
+- name: Add nginx repo
+  apt_repository: repo="{{ item }}" update_cache=yes
+  with_items: nginx_repositories
+  tags: ['nginx', 'nginx:install']
+
+- name: Add nginx repository key
+  apt_key: url="{{ nginx_apt_key_url }}"
+  tags: ['nginx', 'nginx:install']
+
+- name: Install nginx
+  apt: name=nginx state=present update_cache=yes
+  tags: ['nginx', 'nginx:install']
+
+- name: Update OpenSSL to latest version
+  apt: name=openssl state=latest
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Create Diffie-Hellman parameters to prevent weak key exchange
+  command: >
+    openssl dhparam -out {{ nginx_dhparams_filename }} 2048
+    chdir={{ nginx_dhparams_dir }}
+    creates={{ nginx_dhparams_dir }}/{{ nginx_dhparams_filename }}
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Restrict permissions of DH parameters file
+  file: >
+    path="{{ nginx_dhparams_dir }}/{{ nginx_dhparams_filename }}"
+    owner=root group=root mode=0600
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Copy nginx configuration files
+  template: src="{{ item }}" dest="{{ nginx_config_dir }}/{{ item | basename }}"
+  with_items: nginx_configs
+  notify: restart nginx
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Create sites-available directory
+  file: path="{{ nginx_sites_available_dir }}" state=directory
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Copy configuration files for available sites
+  template: src="{{ item }}" dest="{{ nginx_sites_available_dir }}/{{ item | basename }}"
+  with_items: nginx_sites_available
+  notify: reload nginx
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Create sites-enabled directory
+  file: path="{{ nginx_sites_enabled_dir }}" state=directory
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Remove links for enabled sites
+  file: path="{{ nginx_sites_enabled_dir }}/*" state=absent
+  notify: reload nginx
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Enable sites
+  file: >
+    src="{{ nginx_sites_available_dir }}/{{ item | basename }}"
+    dest="{{ nginx_sites_enabled_dir }}/{{ item | basename }}"
+    state=link
+  with_items: nginx_sites_enabled
+  tags: ['nginx', 'nginx:configuration']
+
+- name: Trigger handler to restart nginx
+  command: "/bin/true"
+  notify: restart nginx
+  when: nginx_force_restart
+  tags: ['nginx', 'nginx:configuration']
