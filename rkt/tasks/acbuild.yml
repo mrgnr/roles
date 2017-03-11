@@ -1,0 +1,29 @@
+---
+
+- name: Install systemd-container package (required for acbuild)
+  apt: name=systemd-container state=present update_cache=yes
+  tags: ['rkt', 'rkt:install']
+
+- name: Download acbuild archive
+  get_url: url="{{ rkt_acbuild_url }}" dest="{{ rkt_download_dir }}/{{ rkt_acbuild_filename }}"
+  tags: ['rkt', 'rkt:install']
+
+- name: Download acbuild signature
+  get_url: url="{{ rkt_acbuild_sig_url }}" dest="{{ rkt_download_dir }}/{{ rkt_acbuild_sig_filename }}"
+  tags: ['rkt', 'rkt:install']
+
+- name: Import acbuild signing key
+  command: gpg --keyserver {{ rkt_keyserver }} --recv {{ rkt_acbuild_sig_key }}
+  tags: ['rkt', 'rkt:install']
+
+- name: Verify acbuild signature
+  command: gpg --verify {{ rkt_download_dir }}/{{ rkt_acbuild_sig_filename }} {{ rkt_download_dir }}/{{ rkt_acbuild_filename }}
+  tags: ['rkt', 'rkt:install']
+
+- name: Unpack acbuild archive
+  unarchive: src="{{ rkt_download_dir }}/{{ rkt_acbuild_filename }}" dest="{{ rkt_download_dir }}" copy=no
+  tags: ['rkt', 'rkt:install']
+
+- name: Install acbuild binary
+  copy: remote_src=True src="{{ rkt_download_dir }}/acbuild-v{{ rkt_acbuild_version }}/acbuild" dest="{{ rkt_acbuild_install_dir }}" mode=755
+  tags: ['rkt', 'rkt:install']

@@ -1,46 +1,17 @@
 ---
 
-- name: Install systemd-container package (required for acbuild)
-  apt: name=systemd-container state=present update_cache=yes
-  tags: ['rkt', 'rkt:install']
-
 - name: Create download directory
   file: path="{{ rkt_download_dir }}" state=directory mode=0755
   tags: ['rkt', 'rkt:install']
 
 - name: Create rkt install directory
-  file: path="{{ rkt_install_dir }}" state=directory
+  file: path="{{ rkt_acbuild_install_dir }}" state=directory
   tags: ['rkt', 'rkt:install']
 
-- name: Create rkt library directory
-  file: path="{{ rkt_lib_dir }}/stage1-images" state=directory
-  tags: ['rkt', 'rkt:install']
+- include: acbuild.yml
+  when: rkt_install_acbuild
 
-- name: Download acbuild archive
-  get_url: url="{{ rkt_acbuild_url }}" dest="{{ rkt_download_dir }}/{{ rkt_acbuild_filename }}"
-  tags: ['rkt', 'rkt:install']
-
-- name: Download acbuild signature
-  get_url: url="{{ rkt_acbuild_sig_url }}" dest="{{ rkt_download_dir }}/{{ rkt_acbuild_sig_filename }}"
-  tags: ['rkt', 'rkt:install']
-
-- name: Import acbuild signing key
-  command: gpg --keyserver {{ rkt_keyserver }} --recv {{ rkt_acbuild_sig_key }}
-  tags: ['rkt', 'rkt:install']
-
-- name: Verify acbuild signature
-  command: gpg --verify {{ rkt_download_dir }}/{{ rkt_acbuild_sig_filename }} {{ rkt_download_dir }}/{{ rkt_acbuild_filename }}
-  tags: ['rkt', 'rkt:install']
-
-- name: Unpack acbuild archive
-  unarchive: src="{{ rkt_download_dir }}/{{ rkt_acbuild_filename }}" dest="{{ rkt_download_dir }}" copy=no
-  tags: ['rkt', 'rkt:install']
-
-- name: Install acbuild binary
-  copy: remote_src=True src="{{ rkt_download_dir }}/acbuild-{{ rkt_acbuild_version }}/acbuild" dest="{{ rkt_install_dir }}" mode=755
-  tags: ['rkt', 'rkt:install']
-
-- name: Download rkt archive
+- name: Download rkt package
   get_url: url="{{ rkt_url }}" dest="{{ rkt_download_dir }}/{{ rkt_filename }}"
   tags: ['rkt', 'rkt:install']
 
@@ -56,30 +27,25 @@
   command: gpg --verify {{ rkt_download_dir }}/{{ rkt_sig_filename }} {{ rkt_download_dir }}/{{ rkt_filename }}
   tags: ['rkt', 'rkt:install']
 
-- name: Unpack rkt archive
-  unarchive: src="{{ rkt_download_dir }}/{{ rkt_filename }}" dest="{{ rkt_download_dir }}" copy=no
+- name: Install rkt
+  apt: deb="{{ rkt_download_dir }}/{{ rkt_filename }}"
   tags: ['rkt', 'rkt:install']
 
-- name: Install rkt binary
-  copy: remote_src=True src="{{ rkt_download_dir }}/rkt-{{ rkt_version }}/rkt" dest="{{ rkt_install_dir }}" mode=755
-  tags: ['rkt', 'rkt:install']
+- name: Trust repository keys
+  command: >
+    rkt trust
+    --skip-fingerprint-review
+    {{ item.root is defined | ternary('--root ' + item.root | default(omit), '') }}
+    {{ item.prefix is defined | ternary('--prefix ' + item.prefix | default(omit), '') }}
+    {{ item.location is defined | ternary(item.location | default(omit), '') }}
+  with_items: rkt_trust
+  tags: ['rkt', 'rkt:configuration']
 
-- name: Find stage1 images
-  find: paths="{{ rkt_download_dir }}/rkt-{{ rkt_version }}" patterns="stage1-*.aci"
-  register: stage1_images
-  tags: ['rkt', 'rkt:install']
-
-- name: Install stage1 images
-  copy: remote_src=True src="{{ item.path }}" dest="{{ rkt_lib_dir }}/stage1-images"
-  with_items: stage1_images.files
-  tags: ['rkt', 'rkt:install']
-
-- name: Find systemd unit files
-  find: paths="{{ rkt_download_dir }}/rkt-{{ rkt_version }}/init/systemd" patterns="rkt-*"
-  register: systemd_unit_files
-  tags: ['rkt', 'rkt:install']
-
-- name: Install systemd unit files
-  copy: remote_src=True src="{{ item.path }}" dest="/etc/systemd/system"
-  with_items: systemd_unit_files.files
-  tags: ['rkt', 'rkt:install']
+- name: Fetch rkt images
+  command: >
+    rkt fetch
+    {{ item.signature is defined | ternary('--signature ' + item.signature | default(omit), '') }}
+    {{ item.pull_policy is defined | ternary('--pull-policy ' + item.pull_policy | default(omit), '') }}
+    {{ item.image }}
+  with_items: rkt_fetch_images
+  tags: ['rkt', 'rkt:configuration']

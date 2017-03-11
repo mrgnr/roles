@@ -1,18 +1,22 @@
 ---
 
-rkt_acbuild_version: "v0.4.0"
-rkt_acbuild_filename: "acbuild-{{ rkt_acbuild_version }}.tar.gz"
+rkt_install_acbuild: yes
+rkt_acbuild_version: "0.4.0"
+rkt_acbuild_filename: "acbuild-v{{ rkt_acbuild_version }}.tar.gz"
 rkt_acbuild_sig_filename: "{{ rkt_acbuild_filename }}.asc"
-rkt_acbuild_url: "https://github.com/appc/acbuild/releases/download/{{ rkt_acbuild_version }}/{{ rkt_acbuild_filename }}"
-rkt_acbuild_sig_url: "https://github.com/appc/acbuild/releases/download/{{ rkt_acbuild_version }}/{{ rkt_acbuild_sig_filename }}"
+rkt_acbuild_url: "https://github.com/containers/build/releases/download/v{{ rkt_acbuild_version }}/{{ rkt_acbuild_filename }}"
+rkt_acbuild_sig_url: "https://github.com/containers/build/releases/download/v{{ rkt_acbuild_version }}/{{ rkt_acbuild_sig_filename }}"
 rkt_acbuild_sig_key: "4AADA27B5780CDA66664CC424AF8D94884580913"
-rkt_version: "v1.14.0"
-rkt_filename: "rkt-{{ rkt_version }}.tar.gz"
+rkt_acbuild_install_dir: "/usr/bin"
+
+rkt_version: "1.25.0"
+rkt_filename: "rkt_{{ rkt_version }}-1_amd64.deb"
 rkt_sig_filename: "{{ rkt_filename }}.asc"
-rkt_url: "https://github.com/coreos/rkt/releases/download/{{ rkt_version }}/{{ rkt_filename }}"
-rkt_sig_url: "https://github.com/coreos/rkt/releases/download/{{ rkt_version }}/{{ rkt_sig_filename }}"
+rkt_url: "https://github.com/coreos/rkt/releases/download/v{{ rkt_version }}/{{ rkt_filename }}"
+rkt_sig_url: "https://github.com/coreos/rkt/releases/download/v{{ rkt_version }}/{{ rkt_sig_filename }}"
 rkt_sig_key: "18AD5014C99EF7E3BA5F6CE950BDD3E0FC8A365E"
 rkt_keyserver: "hkp://pgp.mit.edu:80"
 rkt_download_dir: "/tmp/rkt"
-rkt_install_dir: "/usr/bin"
-rkt_lib_dir: "/usr/lib/rkt"
+
+rkt_trust: []
+rkt_fetch_images: []
