@@ -1,0 +1,18 @@
+---
+
+onionbalance_tor_user: "tor"
+onionbalance_tor_user_uid: 9001
+
+onionbalance_rkt_trust:
+  - prefix: "rkt.mrgnr.io"
+    location: "https://keybase.io/mrgnr/key.asc"
+  - prefix: "quay.io/coreos/alpine-sh"
+
+onionbalance_rkt_fetch_images:
+  - image: "rkt.mrgnr.io/tor"
+  - image: "rkt.mrgnr.io/onionbalance"
+
+onionbalance_config_dir: "/etc/onionbalance"
+onionbalance_config: {}
+onionbalance_private_keys: []
+onionbalance_hs_config: []

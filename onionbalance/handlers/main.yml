@@ -1,0 +1,11 @@
+---
+
+- name: reload systemd configuration
+  command: systemctl daemon-reload
+
+- name: restart onionbalance
+  service: name=onionbalance state=restarted
+
+- name: restart hidden services
+  service: name="{{ item.service_name }}" state=restarted
+  with_items: onionbalance_hs_config

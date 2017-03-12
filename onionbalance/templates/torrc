@@ -1,0 +1,2 @@
+HiddenServiceDir /var/lib/tor/{{ item.service_name }}/
+HiddenServicePort {{ item.port }} {{ item.target }}

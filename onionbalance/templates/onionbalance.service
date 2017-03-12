@@ -1,0 +1,20 @@
+[Unit]
+Description=OnionBalance
+After=network.target nss-lookup.target
+
+[Service]
+Slice=machine.slice
+ExecStart=/usr/bin/rkt run rkt.mrgnr.io/onionbalance \
+    --volume=localtime,kind=host,source=/etc/localtime \
+    --volume=config,kind=host,source={{ onionbalance_config_dir }}/ \
+    --dns=8.8.8.8 --dns=8.8.4.4 \
+    --private-users --no-overlay
+KillMode=mixed
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

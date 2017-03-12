@@ -1,0 +1,116 @@
+---
+
+- name: Create tor user
+  user: >
+    name="{{ onionbalance_tor_user }}"
+    uid="{{ onionbalance_tor_user_uid }}"
+    shell="/bin/false"
+  tags: ['onionbalance', 'onionbalance:install']
+
+- name: Trust repository keys
+  command: >
+    rkt trust
+    --skip-fingerprint-review
+    {{ item.root is defined | ternary('--root ' + item.root | default(omit), '') }}
+    {{ item.prefix is defined | ternary('--prefix ' + item.prefix | default(omit), '') }}
+    {{ item.location is defined | ternary(item.location | default(omit), '') }}
+  with_items: onionbalance_rkt_trust
+  tags: ['onionbalance', 'onionbalance:install']
+
+- name: Fetch images
+  command: >
+    rkt fetch
+    {{ item.signature is defined | ternary('--signature ' + item.signature | default(omit), '') }}
+    {{ item.pull_policy is defined | ternary('--pull-policy ' + item.pull_policy | default(omit), '') }}
+    {{ item.image }}
+  with_items: onionbalance_rkt_fetch_images
+  tags: ['onionbalance', 'onionbalance:install']
+
+- name: Create Onionbalance config directory
+  file: path="{{ onionbalance_config_dir }}" state=directory
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Create Onionbalance config file
+  copy: >
+    content="{{ onionbalance_config | to_nice_yaml }}"
+    dest="{{ onionbalance_config_dir }}/config.yaml"
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Copy Onionbalance private keys
+  copy: >
+    content="{{ item.key }}"
+    dest="{{ onionbalance_config_dir }}/{{ item.name }}.key"
+  with_items: onionbalance_private_keys
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Create hidden service data directories
+  file: >
+    path="{{ item.data_dir }}/{{ item.service_name }}"
+    state=directory
+    owner="{{ onionbalance_tor_user }}"
+    group="{{ onionbalance_tor_user }}"
+    mode="2700"
+  with_items: onionbalance_hs_config
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Create hidden service config files
+  template: >
+    src="torrc"
+    dest="{{ item.torrc }}"
+  with_items: onionbalance_hs_config
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Copy hidden service hostnames
+  copy: >
+    content="{{ item.hostname }}"
+    dest="{{ item.data_dir }}/{{ item.service_name }}/hostname"
+    owner="{{ onionbalance_tor_user }}"
+    group="{{ onionbalance_tor_user }}"
+    mode="0600"
+  with_items: onionbalance_hs_config
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Copy hidden service private keys
+  copy: >
+    content="{{ item.private_key }}"
+    dest="{{ item.data_dir }}/{{ item.service_name }}/private_key"
+    owner="{{ onionbalance_tor_user }}"
+    group="{{ onionbalance_tor_user }}"
+    mode="0600"
+  with_items: onionbalance_hs_config
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Copy hidden service systemd files
+  template: >
+    src="torhs.service" dest="/etc/systemd/system/{{ item.service_name }}.service"
+  with_items: onionbalance_hs_config
+  notify:
+    - reload systemd configuration
+    - restart hidden services
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Copy OnionBalance systemd file
+  template: >
+    src="onionbalance.service" dest="/etc/systemd/system/onionbalance.service"
+  notify:
+    - reload systemd configuration
+    - restart onionbalance
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Enable hidden services
+  service: name="{{ item.service_name }}" enabled=yes
+  with_items: onionbalance_hs_config
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Start hidden services
+  service: name="{{ item.service_name }}" state=started
+  with_items: onionbalance_hs_config
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Enable OnionBalance service
+  service: name=onionbalance enabled=yes
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Start OnionBalance
+  service: name=onionbalance state=started
+  tags: ['onionbalance', 'onionbalance:configuration']
