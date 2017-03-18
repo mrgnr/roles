@@ -26,6 +26,15 @@
   with_items: onionbalance_rkt_fetch_images
   tags: ['onionbalance', 'onionbalance:install']
 
+- name: Create Onionbalance data directory
+  file: >
+    path="{{ onionbalance_data_dir }}"
+    state=directory
+    owner="{{ onionbalance_tor_user }}"
+    group="{{ onionbalance_tor_user }}"
+    mode="2700"
+  tags: ['onionbalance', 'onionbalance:configuration']
+
 - name: Create Onionbalance config directory
   file: path="{{ onionbalance_config_dir }}" state=directory
   tags: ['onionbalance', 'onionbalance:configuration']
@@ -34,6 +43,8 @@
   copy: >
     content="{{ onionbalance_config | to_nice_yaml }}"
     dest="{{ onionbalance_config_dir }}/config.yaml"
+  notify:
+    - restart onionbalance
   tags: ['onionbalance', 'onionbalance:configuration']
 
 - name: Copy Onionbalance private keys
@@ -41,6 +52,16 @@
     content="{{ item.key }}"
     dest="{{ onionbalance_config_dir }}/{{ item.name }}.key"
   with_items: onionbalance_private_keys
+  notify:
+    - restart onionbalance
+  tags: ['onionbalance', 'onionbalance:configuration']
+
+- name: Create Onionbalance tor config file
+  template: >
+    src="torrc_master"
+    dest="{{ onionbalance_config_dir }}/torrc"
+  notify:
+    - restart onionbalance
   tags: ['onionbalance', 'onionbalance:configuration']
 
 - name: Create hidden service data directories
@@ -53,9 +74,16 @@
   with_items: onionbalance_hs_config
   tags: ['onionbalance', 'onionbalance:configuration']
 
+- name: Create hidden service config directories
+  file: >
+    path="{{ item.torrc | dirname }}"
+    state=directory
+  with_items: onionbalance_hs_config
+  tags: ['onionbalance', 'onionbalance:configuration']
+
 - name: Create hidden service config files
   template: >
-    src="torrc"
+    src="torrc_hs"
     dest="{{ item.torrc }}"
   with_items: onionbalance_hs_config
   tags: ['onionbalance', 'onionbalance:configuration']

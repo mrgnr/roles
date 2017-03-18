@@ -4,11 +4,14 @@ After=network.target nss-lookup.target
 
 [Service]
 Slice=machine.slice
-ExecStart=/usr/bin/rkt run rkt.mrgnr.io/onionbalance \
+ExecStart=/usr/bin/rkt run \
     --volume=localtime,kind=host,source=/etc/localtime \
     --volume=config,kind=host,source={{ onionbalance_config_dir }}/ \
+    --volume=torrc,kind=host,source={{ onionbalance_config_dir }}/torrc \
+    --volume=data,kind=host,source={{ onionbalance_data_dir }} \
     --dns=8.8.8.8 --dns=8.8.4.4 \
-    --private-users --no-overlay
+    rkt.mrgnr.io/tor \
+    rkt.mrgnr.io/onionbalance
 KillMode=mixed
 Restart=always
 RestartSec=5
