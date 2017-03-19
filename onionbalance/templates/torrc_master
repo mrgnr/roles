@@ -1,0 +1,5 @@
+ControlPort 9051
+{% if onionbalance_hashed_control_password %}
+HashedControlPassword {{ onionbalance_hashed_control_password }}
+{% endif %}
+SocksPort 0

@@ -12,7 +12,7 @@ onionbalance_rkt_fetch_images:
   - image: "rkt.mrgnr.io/tor"
   - image: "rkt.mrgnr.io/onionbalance"
 
-onionbalanced_hashed_control_password: ""
+onionbalance_hashed_control_password: ""
 onionbalance_data_dir: "/var/lib/onionbalance"
 onionbalance_config_dir: "/etc/onionbalance"
 onionbalance_config: {}
