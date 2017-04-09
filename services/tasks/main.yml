@@ -1,0 +1,79 @@
+---
+
+- name: Copy service files
+  copy:
+    src: "{{ item.file }}"
+    dest: "{{ services_dir }}/{{ item.file | basename }}"
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+  when: item.file is defined
+  with_items: "{{ services_services }}"
+  notify:
+    - reload systemd configuration
+    - restart services
+  tags: ['services']
+
+- name: Copy service files from templates
+  template:
+    src: "{{ item.template }}"
+    dest: "{{ services_dir }}/{{ item.template | basename }}"
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+  when: item.template is defined
+  with_items: "{{ services_services }}"
+  notify:
+    - reload systemd configuration
+    - restart services
+  tags: ['services']
+
+- name: Create config directories
+  file:
+    path: "{{ item.dest | dirname }}"
+    owner: "{{ item.dir_owner | default(omit) }}"
+    group: "{{ item.dir_group | default(omit) }}"
+    mode: "{{ item.dir_mode | default(omit) }}"
+  when: item.file is defined
+  with_items: "{{ services_configs }}"
+  tags: ['services']
+
+- name: Copy config files
+  copy:
+    src: "{{ item.file }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+  when: item.file is defined
+  with_items: "{{ services_configs }}"
+  notify:
+    - restart services
+  tags: ['services']
+
+- name: Copy config files from templates
+  copy:
+    src: "{{ item.template }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+  when: item.template is defined
+  with_items: "{{ services_configs }}"
+  notify:
+    - restart services
+  tags: ['services']
+
+- name: Enable/disable services
+  service:
+    name: "{{ item.name }}"
+    enabled: "{{ item.enabled | default('yes') }}"
+  with_items: "{{ services_services }}"
+  tags: ['services']
+
+- name: Start/stop services
+  service:
+    name: "{{ item.name }}"
+    state: "{{ item.state | default('started') }}"
+  with_items: "{{ services_services }}"
+  tags: ['services']

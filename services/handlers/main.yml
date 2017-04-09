@@ -1,0 +1,11 @@
+---
+
+- name: reload systemd configuration
+  command: systemctl daemon-reload
+  when: ansible_service_mgr == "systemd"
+
+- name: restart services
+  service:
+    name: "{{ item.name }}"
+    state: "{{ item.on_update | default('restarted') }}"
+  with_items: "{{ services_services }}"

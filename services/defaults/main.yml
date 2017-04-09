@@ -1,0 +1,25 @@
+---
+
+services_services: []
+services_configs: []
+services_dir: "{{ {'systemd': '/etc/systemd/system', 'upstart': '/etc/init'}[ansible_service_mgr] | default('/etc/init.d') }}"
+
+#services_services:
+#  - name: foo
+#    file: foo.service
+#    mode: 0644
+#    on_update: reloaded
+#  - name: bar
+#    template: bar.service
+#    state: stopped
+#    enabled: no
+#    on_update: stopped
+#
+#services_configs:
+#  - file: foo.conf
+#    dest: /etc/foo/foo.conf
+#    owner: foo-user
+#    group: foo-group
+#  - template: bar.conf
+#    dest: /etc/bar/bar.conf
+#    mode: 0600
