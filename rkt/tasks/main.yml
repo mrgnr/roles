@@ -44,6 +44,7 @@
 - name: Fetch rkt images
   command: >
     rkt fetch
+    {{ item.insecure | default(false) | ternary('--insecure-options=image ', '') }}
     {{ item.signature is defined | ternary('--signature ' + item.signature | default(omit), '') }}
     {{ item.pull_policy is defined | ternary('--pull-policy ' + item.pull_policy | default(omit), '') }}
     {{ item.image }}

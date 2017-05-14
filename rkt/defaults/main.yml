@@ -1,6 +1,6 @@
 ---
 
-rkt_install_acbuild: yes
+rkt_install_acbuild: no
 rkt_acbuild_version: "0.4.0"
 rkt_acbuild_filename: "acbuild-v{{ rkt_acbuild_version }}.tar.gz"
 rkt_acbuild_sig_filename: "{{ rkt_acbuild_filename }}.asc"
