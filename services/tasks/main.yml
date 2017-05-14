@@ -49,6 +49,7 @@
   when: item.file is defined
   with_items: "{{ services_configs }}"
   notify:
+    - reload systemd configuration
     - restart services
   tags: ['services']
 
@@ -62,6 +63,7 @@
   when: item.template is defined
   with_items: "{{ services_configs }}"
   notify:
+    - reload systemd configuration
     - restart services
   tags: ['services']
 
