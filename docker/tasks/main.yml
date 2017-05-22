@@ -1,0 +1,106 @@
+---
+
+- name: Install prerequisites
+  apt: name="{{ item }}" state=present
+  with_items:
+    - "apt-transport-https"
+    - "ca-certificates"
+    - "software-properties-common"
+  tags: ['docker', 'docker:install']
+
+- name: Add Docker's GPG key
+  apt_key:
+    url: "{{ docker_key_url }}"
+    id: "{{ docker_key_id }}"
+  tags: ['docker', 'docker:install']
+
+- name: Add Docker repository
+  apt_repository: repo="{{ docker_repository }}"
+  tags: ['docker', 'docker:install']
+
+- name: Install Docker
+  apt: name="{{ docker_package }}" state=present
+  tags: ['docker', 'docker:install']
+
+- name: Install Python client
+  pip: name="{{ docker_python_package }}" state=present
+  tags: ['docker', 'docker:install']
+
+- name: Copy daemon config
+  copy: content="{{ docker_daemon_config | to_nice_json }}" dest="{{ docker_daemon_config_dest }}"
+  notify: reload docker
+  tags: ['docker', 'docker:configuration']
+
+- name: Enable and start Docker
+  service: name=docker state=started enabled=yes
+  tags: ['docker', 'docker:configuration']
+
+- name: Configure networking
+  docker_network:
+    docker_host: "{{ docker_host | default(omit) }}"
+    cacert_path: "{{ docker_cacert_path | default(omit) }}"
+    cert_path: "{{ docker_cert_path | default(omit) }}"
+    key_path: "{{ docker_key_path | default(omit) }}"
+    appends: "{{ item.appends | default(omit) }}"
+    connected: "{{ item.connected | default(omit) }}"
+    driver: "{{ item.driver | default(omit) }}"
+    driver_options: "{{ item.driver_options | default(omit) }}"
+    force: "{{ item.force | default(omit) }}"
+    ipam_driver: "{{ item.ipam_driver | default(omit) }}"
+    ipam_options: "{{ item.ipam_options | default(omit) }}"
+    name: "{{ item.name }}"
+  with_items: "{{ docker_networks }}"
+  tags: ['docker', 'docker:configuration', 'docker:networking']
+
+- name: Manage images
+  docker_image:
+    docker_host: "{{ docker_host | default(omit) }}"
+    cacert_path: "{{ docker_cacert_path | default(omit) }}"
+    cert_path: "{{ docker_cert_path | default(omit) }}"
+    key_path: "{{ docker_key_path | default(omit) }}"
+    buildargs: "{{ item.buildargs | default(omit) }}"
+    dockerfile: "{{ item.dockerfile | default(omit) }}"
+    force: "{{ item.force | default(omit) }}"
+    dockerfile: "{{ item.dockerfile | default(omit) }}"
+    name: "{{ item.name }}"
+    nocache: "{{ item.nocache | default(omit) }}"
+    path: "{{ item.path | default(omit) }}"
+    pull: "{{ item.pull | default(omit) }}"
+    push: "{{ item.push | default(omit) }}"
+    repository: "{{ item.repository | default(omit) }}"
+    rm: "{{ item.rm | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+    tag: "{{ item.tag | default(omit) }}"
+  with_items: "{{ docker_images }}"
+  tags: ['docker', 'docker:configuration', 'docker:images']
+
+- name: Manage containers
+  docker_container:
+    docker_host: "{{ docker_host | default(omit) }}"
+    cacert_path: "{{ docker_cacert_path | default(omit) }}"
+    cert_path: "{{ docker_cert_path | default(omit) }}"
+    key_path: "{{ docker_key_path | default(omit) }}"
+    capabilities: "{{ item.capabilities | default(omit) }}"
+    command: "{{ item.command | default(omit) }}"
+    entrypoint: "{{ item.entrypoint | default(omit) }}"
+    env: "{{ item.env | default(omit) }}"
+    exposed_ports: "{{ item.exposed_ports | default(omit) }}"
+    image: "{{ item.image | default(omit) }}"
+    labels: "{{ item.labels | default(omit) }}"
+    name: "{{ item.name | default(omit) }}"
+    network_mode: "{{ item.network_mode | default(omit) }}"
+    networks: "{{ item.networks | default(omit) }}"
+    published_ports: "{{ item.published_ports | default(omit) }}"
+    pull: "{{ item.pull | default(omit) }}"
+    restart_policy: "{{ item.restart_policy | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+    volumes: "{{ item.volumes | default(omit) }}"
+    volumes_from: "{{ item.volumes_from | default(omit) }}"
+  with_items: "{{ docker_containers }}"
+  tags: ['docker', 'docker:configuration', 'docker:containers']
+
+- name: Trigger handler to restart Docker
+  command: "/bin/true"
+  notify: restart docker
+  when: docker_force_restart
+  tags: ['docker', 'docker:configuration']

@@ -1,0 +1,13 @@
+---
+
+docker_key_url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+docker_key_id: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+docker_repository: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+docker_package: "docker-ce"
+docker_python_package: "docker"
+docker_daemon_config: {}
+docker_daemon_config_dest: "/etc/docker/daemon.json"
+docker_networks: []
+docker_images: []
+docker_containers: []
+docker_force_restart: no
